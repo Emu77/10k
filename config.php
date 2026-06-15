@@ -1,6 +1,6 @@
 <?php
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$isLocal = ($host === 'localhost' || str_starts_with($host, '127.'));
+$isLocal = ($host === 'localhost' || strpos($host, '127.') === 0);
 
 if ($isLocal) {
     define('DB_HOST', 'localhost');
@@ -11,9 +11,9 @@ if ($isLocal) {
     define('BASE_URL', '/10k');
 } else {
     define('DB_HOST', 'localhost');
-    define('DB_NAME', 'DEIN_DB_NAME');
-    define('DB_USER', 'DEIN_DB_USER');
-    define('DB_PASS', 'DEIN_DB_PASS');
+    define('DB_NAME', 'usr_web32_1');
+    define('DB_USER', 'web32');
+    define('DB_PASS', 'Test1234');
     define('DB_SOCK', '');
     define('BASE_URL', '/projekte/10k');
 }

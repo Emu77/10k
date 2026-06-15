@@ -5,7 +5,7 @@ $data  = input();
 $token = trim($data['token'] ?? '');
 $p     = playerByToken($token);
 if (!$p)                           err('Ungültiges Token', 401);
-if ($p['slot'] !== 0)              err('Nur der Host kann starten');
+if ((int)$p['slot'] !== 0)              err('Nur der Host kann starten');
 if ($p['game_status'] !== 'lobby') err('Spiel läuft bereits');
 
 $db = DB::get();

@@ -102,7 +102,7 @@ class Scoring {
     /**
      * Validiert eine gesendete Auswahl: gibt Score zurück oder false.
      */
-    public static function validateSelection(array $selected, array $available): int|false {
+    public static function validateSelection(array $selected, array $available): int {
         if (!self::subsetAvailable($available, $selected)) return false;
         $opts = self::allOptions($available);
         // Finde matching option
