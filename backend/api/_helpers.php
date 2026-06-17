@@ -20,7 +20,7 @@ function input(): array {
 }
 
 // ── Spieler aus Token laden ───────────────────────────────────────────────
-function playerByToken(string $token): array {
+function playerByToken(string $token) {
     $st = DB::get()->prepare(
         'SELECT p.*, g.status AS game_status, g.current_turn, g.win_score, g.code
          FROM `10k_players` p
