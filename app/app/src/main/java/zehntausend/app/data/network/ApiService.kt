@@ -1,0 +1,67 @@
+package zehntausend.app.data.network
+
+import retrofit2.Response
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
+import zehntausend.app.data.model.ApiResponse
+import zehntausend.app.data.model.GameState
+
+interface ApiService {
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=create")
+    suspend fun createGame(
+        @Field("name") playerName: String
+    ): Response<ApiResponse>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=join")
+    suspend fun joinGame(
+        @Field("game_code") gameCode: String,
+        @Field("name") playerName: String
+    ): Response<ApiResponse>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=start")
+    suspend fun startGame(
+        @Field( value = "game_id") gameId: Int,
+        @Field( value = "player_id") playerId: Int,
+        @Field( value = "token") token: String
+    ): Response<ApiResponse>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=roll")
+    suspend fun rollDice(
+        @Field("game_id") gameId: Int,
+        @Field("player_id") playerId: Int
+    ): Response<GameState>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=keep")
+    suspend fun keepDice(
+        @Field("game_id") gameId: Int,
+        @Field("player_id") playerId: Int,
+        @Field("indices") indices: String
+    ): Response<GameState>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=bank")
+    suspend fun bank(
+        @Field("game_id") gameId: Int,
+        @Field("player_id") playerId: Int
+    ): Response<GameState>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=state")
+    suspend fun getState(
+        @Field("game_id") gameId: Int,
+        @Field("player_id") playerId: Int
+    ): Response<GameState>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=ai_turn")
+    suspend fun aiTurn(
+        @Field("game_id") gameId: Int
+    ): Response<GameState>
+}
