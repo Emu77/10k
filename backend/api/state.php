@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/_helpers.php';
 
-$token = trim($_GET['token'] ?? '');
+$token = trim($_GET['token'] ?? $_POST['token'] ?? '');
 $p     = playerByToken($token);
 if (!$p) err('Ungültiges Token', 401);
 
@@ -39,6 +39,17 @@ if ($p['game_status'] === 'finished') {
     $winner = $players[0]['name'];
 }
 
+
+// Würfel aus letztem Roll extrahieren
+$dice = [];
+$keptArr = [];
+if ($lastRoll) {
+    $allDice = json_decode($lastRoll['dice_json'], true) ?: [];
+    foreach ($allDice as $d) {
+        if (!$d['kept']) $dice[] = $d['v'];
+        else $keptArr[] = $d['v'];
+    }
+}
 ok([
     'status'       => $p['game_status'],
     'code'         => $p['code'],
@@ -49,6 +60,8 @@ ok([
     'my_turn'      => $myTurn,
     'turn_no'      => $turnNo,
     'last_roll'    => $lastRoll ?: null,
+    'dice'         => $dice,
+    'kept'         => $keptArr,
     'log'          => array_reverse($log),
     'winner'       => $winner,
 ]);
