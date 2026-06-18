@@ -48,21 +48,24 @@ foreach ($selected as $sv) {
         $remaining = array_values($remaining);
     }
 }
-// Neues dice_json: bisherige kept + neue kept
-$newDice = array_map(fn($d) => ['v' => $d['v'], 'kept' => true], $allDice);
-$newKept = array_map(
-    fn($v) => ['v' => $v, 'kept' => true],
-    array_merge(
-        array_map(fn($d) => $d['v'], array_filter($allDice, fn($d) => $d['kept'])),
-        $selected
-    )
-);
-
+// Neues dice_json korrekt bauen
+$newDice = [];
+foreach ($allDice as $d) {
+    if ($d['kept']) $newDice[] = ['v' => $d['v'], 'kept' => true];
+}
+foreach ($selected as $v) {
+    $newDice[] = ['v' => $v, 'kept' => true];
+}
+foreach ($remaining as $v) {
+    $newDice[] = ['v' => $v, 'kept' => false];
+}
+$newKept = array_values(array_filter($newDice, fn($d) => $d['kept']));
 // Update letzten Turn-Eintrag
 $db->prepare(
-    'UPDATE `10k_turns` SET kept_json = ?, turn_score = ?, action = "keep"
+'UPDATE `10k_turns` SET dice_json = ?, kept_json = ?, turn_score = ?, action = "keep"
      WHERE game_id = ? AND turn_no = ? AND roll_no = ?'
 )->execute([
+    json_encode($newDice),
     json_encode($newKept),
     $newTurnScore,
     $gameId, $turnNo, (int)$lastRoll['roll_no']
