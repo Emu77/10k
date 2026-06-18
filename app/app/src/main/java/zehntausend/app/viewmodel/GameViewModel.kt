@@ -26,10 +26,10 @@ class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
-    fun createGame(playerName: String, onSuccess: () -> Unit) {
+    fun createGame(playerName: String, aiCount: Int = 0, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            repository.createGame(playerName)
+            repository.createGame(playerName, aiCount)
                 .onSuccess { response ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -114,6 +114,15 @@ class GameViewModel : ViewModel() {
         viewModelScope.launch {
             val state = _uiState.value
             repository.getState(state.gameId, state.playerId)
+                .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
+                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+        }
+    }
+
+    fun triggerAiTurn() {
+        viewModelScope.launch {
+            val state = _uiState.value
+            repository.aiTurn(state.gameId)
                 .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
                 .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
         }

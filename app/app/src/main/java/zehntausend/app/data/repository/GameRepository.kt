@@ -8,8 +8,8 @@ class GameRepository {
 
     private val api = RetrofitClient.api
 
-    suspend fun createGame(playerName: String): Result<ApiResponse> = runCatching {
-        api.createGame(playerName).body() ?: throw Exception("Leere Antwort")
+    suspend fun createGame(playerName: String, aiCount: Int = 0): Result<ApiResponse> = runCatching {
+        api.createGame(playerName, aiCount).body() ?: throw Exception("Leere Antwort")
     }
 
     suspend fun joinGame(gameCode: String, playerName: String): Result<ApiResponse> = runCatching {
