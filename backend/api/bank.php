@@ -55,6 +55,7 @@ if ($won) {
 }
 
 ok([
+    'ok'          => true,
     'banked'      => $turnScore,
     'total'       => $newTotal,
     'won'         => $won,
