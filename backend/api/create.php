@@ -34,4 +34,7 @@ for ($i = 0; $i < $aiCount; $i++) {
 
 $db->commit();
 
-ok(['code' => $code, 'token' => $token, 'game_id' => $gameId]);
+$st2 = $db->prepare('SELECT id FROM `10k_players` WHERE game_id = ? AND slot = 0');
+$st2->execute([$gameId]);
+$hostPlayer = $st2->fetch();
+ok(['code' => $code, 'token' => $token, 'game_id' => $gameId, 'player_id' => (int)$hostPlayer['id']]);
