@@ -1,8 +1,5 @@
-Ein paar Dinge stimmen nicht mehr – Projektstruktur, PHP-Version, Einsteigsbedingung. Ich aktualisiere:
-
-```bash
-cat > /media/emu/daten/arbeit/htdocs/10k/README.md << 'EOF'
 # 10K – Zehntausend 🎲
+
 > Multiplayer-Würfelspiel für Android mit PHP/MySQL-Backend
 
 Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, über einen gemeinsamen Raumcode. Wahlweise mit KI-Gegnern.
@@ -12,7 +9,7 @@ Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, �
 ## Features
 
 - 🌐 **Online-Multiplayer** – Raum erstellen, Code teilen, losspielen
-- 🤖 **KI-Gegner** – bis zu 3 KI-Spieler mit Greedy-Strategie
+- 🤖 **KI-Gegner** – 1–3 KI-Spieler mit Greedy-Strategie
 - 🎯 **Alle klassischen Wertungen** – 1er, 5er, Dreierpasch bis Fünferpasch, Hot Dice
 - 🏆 **Wählbare Zielpunktzahl** – 5.000 / 10.000 / 15.000
 - 🌙 **Dark Mode UI** – Material3, Jetpack Compose
@@ -22,7 +19,6 @@ Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, �
 ## Technik
 
 ### Android-App
-
 | Komponente | Technologie |
 |---|---|
 | Sprache | Kotlin |
@@ -31,15 +27,15 @@ Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, �
 | Netzwerk | Retrofit 2 + OkHttp |
 | JSON | Gson |
 | Async | Kotlin Coroutines |
+| Navigation | Navigation Component |
+| Session | SharedPreferences |
 
 ### Backend
-
 | Komponente | Technologie |
 |---|---|
 | Sprache | PHP 7.4 |
-| Datenbank | MySQL |
+| Datenbank | MySQL / MariaDB |
 | Schnittstelle | REST-API (JSON) |
-| Routing | `api/index.php` (action-Parameter) |
 | Server | Apache (Shared Hosting) |
 | Hosting | kronisoft.net |
 
@@ -48,32 +44,39 @@ Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, �
 ## Projektstruktur
 
 ```
-10k/
-├── backend/
-│   ├── config.php              ← DB-Verbindung
-│   ├── config.example.php      ← Vorlage (im Repo)
-│   ├── scoring.php             ← Punkteberechnung
-│   ├── setup.sql               ← Datenbankstruktur
-│   └── api/
-│       ├── index.php           ← Router (action=...)
-│       ├── _helpers.php        ← Hilfsfunktionen
-│       ├── create.php          ← Raum erstellen
-│       ├── join.php            ← Beitreten
-│       ├── start.php           ← Spiel starten
-│       ├── roll.php            ← Würfeln
-│       ├── keep.php            ← Würfel behalten
-│       ├── bank.php            ← Punkte banken
-│       ├── state.php           ← Spielzustand (Polling)
-│       └── ai_turn.php         ← KI-Zug
-├── app/
-│   └── app/src/main/java/zehntausend/app/
-│       ├── data/
-│       │   ├── model/          ← Datenklassen (GameState, ApiResponse)
-│       │   ├── network/        ← ApiService, RetrofitClient
-│       │   └── repository/     ← GameRepository
-│       ├── viewmodel/          ← GameViewModel, UiState
-│       └── ui/screens/         ← LoginScreen, LobbyScreen, GameScreen
-└── docs/                       ← Projektdokumentation
+10k/                        ← PHP-Backend
+├── config.php              ← DB-Verbindung, Umgebungserkennung
+├── scoring.php             ← Spiellogik / Punkteberechnung
+├── setup.sql               ← Datenbankstruktur
+├── index.php               ← Lobby (Web-Fallback)
+├── game.php                ← Spielfeld (Web-Fallback)
+└── api/
+    ├── create.php          ← Raum erstellen
+    ├── join.php            ← Beitreten
+    ├── start.php           ← Spiel starten
+    ├── roll.php            ← Würfeln
+    ├── keep.php            ← Würfel behalten
+    ├── bank.php            ← Punkte banken
+    ├── state.php           ← Spielzustand (Polling)
+    └── ai_turn.php         ← KI-Zug
+
+10k-android/                ← Android-App
+└── app/src/main/java/net/kronisoft/zehntausend/
+    ├── MainActivity.kt
+    ├── api/
+    │   ├── ApiService.kt   ← Retrofit-Interface (8 Endpunkte)
+    │   └── RetrofitClient.kt
+    ├── model/Models.kt     ← Datenklassen
+    ├── util/SessionStore.kt
+    └── ui/
+        ├── Theme.kt
+        ├── components/DieView.kt
+        ├── lobby/
+        │   ├── LobbyScreen.kt
+        │   └── LobbyViewModel.kt
+        └── game/
+            ├── GameScreen.kt
+            └── GameViewModel.kt
 ```
 
 ---
@@ -94,7 +97,6 @@ Alle Calls via `POST https://kronisoft.net/projekte/10k/backend/api/index.php?ac
 | `ai_turn` | `game_id` | KI-Zug ausführen |
 
 ---
-
 ## Spielregeln
 
 | Kombination | Punkte |
@@ -118,7 +120,7 @@ Alle Calls via `POST https://kronisoft.net/projekte/10k/backend/api/index.php?ac
 -- setup.sql in phpMyAdmin ausführen
 ```
 
-**2. `config.php` anlegen** (aus `config.example.php`)
+**2. `config.php` anpassen**
 ```php
 define('DB_NAME', 'DEIN_DB_NAME');
 define('DB_USER', 'DEIN_DB_USER');
@@ -128,11 +130,11 @@ define('DB_PASS', 'DEIN_DB_PASS');
 
 **3. Dateien hochladen**
 ```
-Ziel: kronisoft.net/projekte/10k/backend/
+Ziel: kronisoft.net/projekte/10k/backend/backend/
 Tool: FileZilla
 ```
 
-> ⚠️ `.htaccess` muss leer sein – `php_flag` und `Options`-Direktiven verursachen 500-Fehler auf kronisoft.net.
+> ⚠️ `.htaccess` muss leer sein – `php_flag`/`Options`-Direktiven verursachen 500-Fehler auf kronisoft.net.
 
 ---
 
@@ -140,48 +142,56 @@ Tool: FileZilla
 
 **1. Projekt öffnen**
 ```
-Android Studio → Open → 10k/app/
+Android Studio → Open → 10k-android/
 ```
 
-**2. Backend-URL prüfen** (`RetrofitClient.kt`)
+**2. Gradle sync abwarten**
+
+**3. Backend-URL prüfen** (`RetrofitClient.kt`)
 ```kotlin
-private const val BASE_URL = "https://kronisoft.net/projekte/10k/backend/"
+const val BASE_URL_PROD  = "https://kronisoft.net/projekte/10k/"
+const val BASE_URL_LOCAL = "http://10.0.2.2/projekte/10k/"  // Emulator
 ```
 
-**3. App deployen**
+**4. App auf Gerät deployen**
 ```bash
-# Wireless ADB (SHIFT6mq, Android 13)
-adb connect 192.168.178.77:<PORT>
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+# Wireless ADB (SHIFT6mq)
+adb connect <IP>:<PORT>
+# dann Run in Android Studio
 ```
 
 ---
 
 ## Multiplayer-Konzept
 
-Polling alle 2 Sekunden (kein WebSocket – Shared-Hosting-Einschränkung):
+Der Multiplayer funktioniert über **Polling** (kein WebSocket):
 
 ```
-Spieler A                    API (kronisoft.net)        Spieler B / KI
-   |── create ────────────>|                              |
-   |<─ {code, token} ──────|                              |
-   |                        |<── join ─────────────────── |
-   |── start ─────────────>|                              |
-   |── roll / keep / bank ->|                              |
-   |── state (2s) ─────────>|<── state (2s) ───────────── |
-   |                        |── ai_turn (wenn KI dran) ──>|
+Spieler A                    kronisoft.net/api          Spieler B
+   |                               |                       |
+   |── POST create.php ──────────>|                       |
+   |<─ {code: "AB12CD"} ─────────|                       |
+   |                               |                       |
+   |                               |<── POST join.php ────|
+   |                               |─── {token: ...} ────>|
+   |                               |                       |
+   |── POST start.php ──────────>|                       |
+   |                               |                       |
+   |── GET  state.php (2s) ──────>|<── GET state.php ────|
+   |── POST roll.php ────────────>|                       |
+   |── POST keep.php ────────────>|                       |
+   |── POST bank.php ────────────>|                       |
+   |── GET  state.php (2s) ──────>|<── GET state.php ────|
 ```
 
 ---
 
 ## Projektkontext
 
-Abschlussprojekt der Umschulung zum **Fachinformatiker Anwendungsentwicklung** an der GPB Berlin-Neukölln (IHK Berlin).
+Entwickelt während des Betriebspraktikums im Rahmen der Umschulung zum **Fachinformatiker Anwendungsentwicklung** an der GPB Berlin-Neukölln (IHK Berlin).
 
 ---
 
 ## Lizenz
 
 Privates Lernprojekt – kein offizieller Release.
-EOF
-```
