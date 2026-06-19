@@ -20,21 +20,21 @@ class GameRepository {
         api.startGame(gameId, playerId, token).body() ?: throw Exception("Leere Antwort")
     }
 
-    suspend fun rollDice(gameId: Int, playerId: Int): Result<GameState> = runCatching {
-        api.rollDice(gameId, playerId).body() ?: throw Exception("Leere Antwort")
+    suspend fun rollDice(gameId: Int, playerId: Int, token: String): Result<GameState> = runCatching {
+        api.rollDice(gameId, playerId, token).body() ?: throw Exception("Leere Antwort")
     }
 
-    suspend fun keepDice(gameId: Int, playerId: Int, indices: List<Int>): Result<GameState> = runCatching {
+    suspend fun keepDice(gameId: Int, playerId: Int, indices: List<Int>, token: String): Result<GameState> = runCatching {
         val indicesStr = indices.joinToString(",")
-        api.keepDice(gameId, playerId, indicesStr).body() ?: throw Exception("Leere Antwort")
+        api.keepDice(gameId, playerId, indicesStr, token).body() ?: throw Exception("Leere Antwort")
     }
 
-    suspend fun bank(gameId: Int, playerId: Int): Result<GameState> = runCatching {
-        api.bank(gameId, playerId).body() ?: throw Exception("Leere Antwort")
+    suspend fun bank(gameId: Int, playerId: Int, token: String): Result<GameState> = runCatching {
+        api.bank(gameId, playerId, token).body() ?: throw Exception("Leere Antwort")
     }
 
-    suspend fun getState(gameId: Int, playerId: Int): Result<GameState> = runCatching {
-        api.getState(gameId, playerId).body() ?: throw Exception("Leere Antwort")
+    suspend fun getState(gameId: Int, playerId: Int, token: String): Result<GameState> = runCatching {
+        api.getState(gameId, playerId, token).body() ?: throw Exception("Leere Antwort")
     }
 
     suspend fun aiTurn(gameId: Int): Result<GameState> = runCatching {

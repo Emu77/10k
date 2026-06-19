@@ -33,7 +33,8 @@ interface ApiService {
     @POST("api/index.php?action=roll")
     suspend fun rollDice(
         @Field("game_id") gameId: Int,
-        @Field("player_id") playerId: Int
+        @Field("player_id") playerId: Int,
+        @Field("token") token: String
     ): Response<GameState>
 
     @FormUrlEncoded
@@ -41,21 +42,24 @@ interface ApiService {
     suspend fun keepDice(
         @Field("game_id") gameId: Int,
         @Field("player_id") playerId: Int,
-        @Field("indices") indices: String
+        @Field("indices") indices: String,
+        @Field("token") token: String
     ): Response<GameState>
 
     @FormUrlEncoded
     @POST("api/index.php?action=bank")
     suspend fun bank(
         @Field("game_id") gameId: Int,
-        @Field("player_id") playerId: Int
+        @Field("player_id") playerId: Int,
+        @Field("token") token: String
     ): Response<GameState>
 
     @FormUrlEncoded
     @POST("api/index.php?action=state")
     suspend fun getState(
         @Field("game_id") gameId: Int,
-        @Field("player_id") playerId: Int
+        @Field("player_id") playerId: Int,
+        @Field("token") token: String
     ): Response<GameState>
 
     @FormUrlEncoded

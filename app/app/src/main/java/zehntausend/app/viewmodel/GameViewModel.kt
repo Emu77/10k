@@ -77,7 +77,7 @@ class GameViewModel : ViewModel() {
         viewModelScope.launch {
             val state = _uiState.value
             _uiState.value = state.copy(isLoading = true, error = null)
-            repository.rollDice(state.gameId, state.playerId)
+            repository.rollDice(state.gameId, state.playerId, state.token)
                 .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it, selectedDice = emptySet()) }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
@@ -94,7 +94,7 @@ class GameViewModel : ViewModel() {
             val state = _uiState.value
             if (state.selectedDice.isEmpty()) return@launch
             _uiState.value = state.copy(isLoading = true, error = null)
-            repository.keepDice(state.gameId, state.playerId, state.selectedDice.toList())
+            repository.keepDice(state.gameId, state.playerId, state.selectedDice.toList(), state.token)
                 .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it, selectedDice = emptySet()) }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
@@ -104,7 +104,7 @@ class GameViewModel : ViewModel() {
         viewModelScope.launch {
             val state = _uiState.value
             _uiState.value = state.copy(isLoading = true, error = null)
-            repository.bank(state.gameId, state.playerId)
+            repository.bank(state.gameId, state.playerId, state.token)
                 .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it); onSuccess() }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
@@ -113,7 +113,7 @@ class GameViewModel : ViewModel() {
     fun refreshState() {
         viewModelScope.launch {
             val state = _uiState.value
-            repository.getState(state.gameId, state.playerId)
+            repository.getState(state.gameId, state.playerId, state.token)
                 .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
                 .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
         }

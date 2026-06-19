@@ -20,6 +20,7 @@ fun LoginScreen(
     var playerName by remember { mutableStateOf("") }
     var gameCode by remember { mutableStateOf("") }
     var showJoin by remember { mutableStateOf(false) }
+    var aiCount by remember { mutableStateOf(1) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -58,8 +59,13 @@ fun LoginScreen(
             CircularProgressIndicator()
         } else {
             if (!showJoin) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Checkbox(checked = aiCount > 0, onCheckedChange = { aiCount = if (it) 1 else 0 })
+                    Text("KI-Gegner hinzufügen")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { if (playerName.isNotBlank()) viewModel.createGame(playerName, onGameCreated) },
+                    onClick = { if (playerName.isNotBlank()) viewModel.createGame(playerName, aiCount, onGameCreated) },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Neues Spiel erstellen") }
                 Spacer(modifier = Modifier.height(8.dp))
