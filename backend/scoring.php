@@ -40,6 +40,27 @@ class Scoring {
             }
         }
 
+
+        // Straße (1-2-3-4-5) und Full House - nur mit genau 5 Würfeln
+        if ($n === 5) {
+            $sorted = $dice;
+            sort($sorted);
+            // Straße: 1,2,3,4,5
+            if ($sorted === [1,2,3,4,5]) {
+                $options[] = ['dice' => $sorted, 'score' => 1000, 'label' => 'Straße (1-2-3-4-5)'];
+            }
+            // Full House: 3er + 2er
+            $vals = array_unique($sorted);
+            if (count($vals) === 2) {
+                $cnts = array_count_values($sorted);
+                $c = array_values($cnts);
+                sort($c);
+                if ($c === [2, 3]) {
+                    $options[] = ['dice' => $sorted, 'score' => 1000, 'label' => 'Full House'];
+                }
+            }
+        }
+
         // Einzelne 1er und 5er (nur wenn nicht durch Pasch abgedeckt)
         foreach ([1 => 100, 5 => 50] as $val => $pts) {
             if (($counts[$val] ?? 0) === 1 || ($counts[$val] ?? 0) === 2) {
