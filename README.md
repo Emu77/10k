@@ -107,9 +107,15 @@ Alle Calls via `POST https://kronisoft.net/projekte/10k/backend/api/index.php?ac
 | Dreierpasch (n-n-n) | n × 100 |
 | Viererpasch | Dreierpasch × 2 |
 | Fünferpasch | Dreierpasch × 4 |
+| Straße (1–2–3–4–5) | 1.000 |
+| Full House (3+2) | 1.000 |
 
 **Hot Dice** – alle 5 Würfel behalten → erneut alle 5 würfeln  
-**Bust** – kein wertbarer Würfel im Wurf → 0 Punkte, nächster Spieler
+**Mindesteinstieg** – erste Wertung muss ≥ 300 Punkte sein  
+**Bust** – kein wertbarer Würfel im Wurf → 0 Punkte, nächster Spieler  
+**Straße (1–2–3–4–5)** – alle 5 Würfel in einem Wurf → 1.000 Punkte  
+**Full House (3+2)** – alle 5 Würfel in einem Wurf → 1.000 Punkte  
+**3 Striche in Folge** – Gesamtpunktestand wird auf 0 zurückgesetzt
 
 ---
 

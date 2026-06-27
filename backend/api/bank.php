@@ -27,8 +27,8 @@ $turnScore  = (int)$lastRoll['turn_score'];
 $hasEntered = (int)$p['has_entered'];
 
 // Einsteigsbedingung: mind. 1000 Punkte im ersten Bank
-if (false && !$hasEntered && $turnScore < 1000) {
-    err('Erste Wertung muss mindestens 1000 Punkte betragen');
+if (!$hasEntered && $turnScore < 300) {
+    err('Erste Wertung muss mindestens 300 Punkte betragen');
 }
 
 $newTotal = (int)$p['total_score'] + $turnScore;
