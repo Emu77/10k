@@ -57,10 +57,21 @@ foreach ($rolled as $rv) {
 $action = $hasSc ? 'roll' : 'bust';
 
 if (!$hasSc) {
-    // Bust → nächster Spieler, kein Punkt
-    $nextTurn = $p['current_turn'] + count($players); // turn_no erhöhen
+    // Bust → nächster Spieler
     $db->prepare('UPDATE `10k_games` SET current_turn = current_turn + 1 WHERE id = ?')
        ->execute([$gameId]);
+    // Strich-System: nur nach dem Ersteinstieg
+    if ((int)$p['has_entered'] === 1) {
+        $newStreak = (int)$p['bust_streak'] + 1;
+        if ($newStreak >= 3) {
+            // 3 Striche in Folge → Gesamtpunktestand auf 0
+            $db->prepare('UPDATE `10k_players` SET total_score = 0, bust_streak = 0 WHERE id = ?')
+               ->execute([$p['id']]);
+        } else {
+            $db->prepare('UPDATE `10k_players` SET bust_streak = ? WHERE id = ?')
+               ->execute([$newStreak, $p['id']]);
+        }
+    }
 }
 
 $st = $db->prepare(

@@ -22,21 +22,7 @@ $st = $db->prepare(
 $st->execute([$gameId, $turnNo]);
 $lastRoll = $st->fetch();
 if (!$lastRoll) err('Nichts zum Banken');
-if ($lastRoll['action'] === 'bust') {
-// Bust-Streak erhöhen
-$newStreak = (int)$p['bust_streak'] + 1;
-if ($newStreak >= 3) {
-    // 3 Striche: Punktestand auf 0 zurücksetzen
-    $db->prepare('UPDATE `10k_players` SET total_score = 0, bust_streak = 0 WHERE id = ?')
-       ->execute([$p['id']]);
-    ok(['ok' => true, 'bust' => true, 'streak_reset' => true, 'total' => 0]);
-} else {
-    $db->prepare('UPDATE `10k_players` SET bust_streak = ? WHERE id = ?')
-       ->execute([$newStreak, $p['id']]);
-    ok(['ok' => true, 'bust' => true, 'streak' => $newStreak]);
-}
-exit;
-}
+if ($lastRoll['action'] === 'bust') err('Zug endete als Bust – nichts zu banken');
 
 $turnScore  = (int)$lastRoll['turn_score'];
 $hasEntered = (int)$p['has_entered'];
