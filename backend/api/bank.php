@@ -21,7 +21,22 @@ $st = $db->prepare(
 );
 $st->execute([$gameId, $turnNo]);
 $lastRoll = $st->fetch();
-if (!$lastRoll || $lastRoll['action'] === 'bust') err('Nichts zum Banken');
+if (!$lastRoll) err('Nichts zum Banken');
+if ($lastRoll['action'] === 'bust') {
+// Bust-Streak erhöhen
+$newStreak = (int)$p['bust_streak'] + 1;
+if ($newStreak >= 3) {
+    // 3 Striche: Punktestand auf 0 zurücksetzen
+    $db->prepare('UPDATE `10k_players` SET total_score = 0, bust_streak = 0 WHERE id = ?')
+       ->execute([$p['id']]);
+    ok(['ok' => true, 'bust' => true, 'streak_reset' => true, 'total' => 0]);
+} else {
+    $db->prepare('UPDATE `10k_players` SET bust_streak = ? WHERE id = ?')
+       ->execute([$newStreak, $p['id']]);
+    ok(['ok' => true, 'bust' => true, 'streak' => $newStreak]);
+}
+exit;
+}
 
 $turnScore  = (int)$lastRoll['turn_score'];
 $hasEntered = (int)$p['has_entered'];
@@ -37,7 +52,7 @@ $won      = $newTotal >= $winScore;
 
 // Spieler-Score aktualisieren
 $db->prepare(
-    'UPDATE `10k_players` SET total_score = ?, has_entered = 1 WHERE id = ?'
+    'UPDATE `10k_players` SET total_score = ?, has_entered = 1, bust_streak = 0 WHERE id = ?'
 )->execute([$newTotal, $p['id']]);
 
 // Turn als "bank" markieren

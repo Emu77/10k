@@ -45,7 +45,7 @@ function currentTurnState(int $gameId, int $playerSlot, int $turnNo): array {
 // ── Alle Spieler eines Spiels ─────────────────────────────────────────────
 function gamePlayers(int $gameId): array {
     $st = DB::get()->prepare(
-        'SELECT id, slot, name, is_ai, total_score, has_entered
+        'SELECT id, slot, name, is_ai, total_score, has_entered, bust_streak
          FROM `10k_players` WHERE game_id = ? ORDER BY slot'
     );
     $st->execute([$gameId]);
