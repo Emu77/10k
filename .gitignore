@@ -1,3 +1,4 @@
 app/app/build/
 app/build/
 app/local.properties
+backend/config.php
