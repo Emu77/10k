@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/_helpers.php';
 
-$token = trim($_GET['token'] ?? $_POST['token'] ?? '');
+$body  = json_decode(file_get_contents('php://input'), true) ?? [];
+$token = trim($body['token'] ?? $_GET['token'] ?? $_POST['token'] ?? '');
 $p     = playerByToken($token);
 if (!$p) err('Ungültiges Token', 401);
 
