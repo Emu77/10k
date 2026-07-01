@@ -1,9 +1,11 @@
 <?php
 require_once __DIR__ . '/_helpers.php';
 
-$data     = input();
+$body     = file_get_contents('php://input');
+$data     = json_decode($body, true) ?? $_POST;
 $token    = trim($data['token'] ?? '');
-$selected = $data['selected'] ?? []; // array of int values to keep
+$selected = $data['selected'] ?? (isset($data['selected']) ? $data['selected'] : []);
+if (is_string($selected)) $selected = array_map('intval', explode(',', $selected)); // array of int values to keep
 
 $p = playerByToken($token);
 if (!$p)                             err('Ungültiges Token', 401);

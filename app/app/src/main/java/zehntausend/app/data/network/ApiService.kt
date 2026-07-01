@@ -1,4 +1,5 @@
 package zehntausend.app.data.network
+
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -42,7 +43,7 @@ interface ApiService {
     suspend fun keepDice(
         @Field("game_id") gameId: Int,
         @Field("player_id") playerId: Int,
-        @Field("indices") indices: String,
+        @Field("selected") selected: String,
         @Field("token") token: String
     ): Response<GameState>
 
@@ -52,7 +53,7 @@ interface ApiService {
         @Field("game_id") gameId: Int,
         @Field("player_id") playerId: Int,
         @Field("token") token: String
-    ): Response<GameState>
+    ): Response<ApiResponse>
 
     @FormUrlEncoded
     @POST("api/index.php?action=state")

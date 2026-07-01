@@ -94,7 +94,8 @@ class GameViewModel : ViewModel() {
             val state = _uiState.value
             if (state.selectedDice.isEmpty()) return@launch
             _uiState.value = state.copy(isLoading = true, error = null)
-            repository.keepDice(state.gameId, state.playerId, state.selectedDice.toList(), state.token)
+            val diceValues = state.selectedDice.mapNotNull { idx -> state.gameState?.dice?.getOrNull(idx) }
+        repository.keepDice(state.gameId, state.playerId, diceValues, state.token)
                 .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it, selectedDice = emptySet()) }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
@@ -105,7 +106,7 @@ class GameViewModel : ViewModel() {
             val state = _uiState.value
             _uiState.value = state.copy(isLoading = true, error = null)
             repository.bank(state.gameId, state.playerId, state.token)
-                .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it); onSuccess() }
+                .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false); onSuccess() }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
     }
