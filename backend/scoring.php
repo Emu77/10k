@@ -121,18 +121,54 @@ class Scoring {
     }
 
     /**
-     * Validiert eine gesendete Auswahl: gibt Score zurück oder false.
+     * Berechnet die Punkte einer Auswahl, indem sie in gültige Einzelgruppen
+     * zerlegt wird (z.B. Pasch + einzelne 1er/5er gleichzeitig möglich).
+     * Gibt false zurück, wenn Würfel dabei sind, die für sich keine Wertung ergeben.
      */
-    public static function validateSelection(array $selected, array $available): int {
-        if (!self::subsetAvailable($available, $selected)) return false;
-        $opts = self::allOptions($available);
-        // Finde matching option
-        sort($selected);
-        foreach ($opts as $opt) {
-            $d = $opt['dice'];
-            sort($d);
-            if ($d === $selected) return $opt['score'];
+    public static function scoreSelection(array $selected) {
+        if (empty($selected)) return false;
+        $counts = array_count_values($selected);
+        $total = 0;
+        foreach ($counts as $val => $cnt) {
+            if ($cnt >= 3 && $cnt <= 5) {
+                $baseScore = ($val === 1) ? 1000 : ($val * 100);
+                $mult = ($cnt === 3) ? 1 : pow(2, $cnt - 3);
+                $total += $baseScore * $mult;
+            } elseif (($val === 1 || $val === 5) && $cnt <= 2) {
+                $pts = ($val === 1) ? 100 : 50;
+                $total += $pts * $cnt;
+            } else {
+                // Würfel ohne eigene Wertung in der Auswahl -> komplett ungültig
+                return false;
+            }
         }
-        return false;
+        return $total;
+    }
+
+    /**
+     * Validiert eine gesendete Auswahl: gibt Score zurück oder false.
+     * Prüft zuerst Straße/Full House (nur bei frischem 5er-Wurf), sonst
+     * werden die ausgewählten Würfel in gültige Gruppen zerlegt und summiert.
+     */
+    public static function validateSelection(array $selected, array $available) {
+        if (empty($selected)) return false;
+        if (!self::subsetAvailable($available, $selected)) return false;
+
+        if (count($available) === 5 && count($selected) === 5) {
+            $sortedSel   = $selected; sort($sortedSel);
+            $sortedAvail = $available; sort($sortedAvail);
+            if ($sortedSel === $sortedAvail) {
+                if ($sortedSel === [1,2,3,4,5]) return 1000;
+                $vals = array_unique($sortedSel);
+                if (count($vals) === 2) {
+                    $cnts = array_count_values($sortedSel);
+                    $c = array_values($cnts);
+                    sort($c);
+                    if ($c === [2, 3]) return 1000;
+                }
+            }
+        }
+
+        return self::scoreSelection($selected);
     }
 }
