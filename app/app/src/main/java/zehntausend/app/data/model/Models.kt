@@ -18,7 +18,6 @@ data class GameState(
     @SerializedName("current_slot") val current_player_id: Int = 0,
     val dice: List<Int> = emptyList(),
     val kept: List<Int> = emptyList(),
-    @SerializedName("turn_score") val turn_score: Int = 0,
     val players: List<Player> = emptyList(),
     val message: String = "",
     val winner: String? = null,
@@ -27,7 +26,7 @@ data class GameState(
     val rolled: List<Int> = emptyList(),
     val options: List<DiceOption> = emptyList(),
     val bust: Boolean = false,
-    @SerializedName("turn_score") val turn_score_roll: Int = 0,
+    @SerializedName("turn_score") val turn_score: Int = 0,
 )
 
 data class DiceOption(

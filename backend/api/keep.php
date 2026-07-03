@@ -74,7 +74,7 @@ $db->prepare(
 ]);
 
 ok([
-    'kept'        => $newKept,
+    'kept'        => array_column($newKept, 'v'),
     'remaining'   => $remaining,
     'turn_score'  => $newTurnScore,
     'score_added' => $score,

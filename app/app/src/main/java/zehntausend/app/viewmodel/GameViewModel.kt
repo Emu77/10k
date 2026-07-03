@@ -73,12 +73,24 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    // Lädt den vollständigen Spielzustand nach (my_turn, dice, players, status, ...),
+    // da roll/keep/bank nur Teilantworten liefern und nicht das komplette GameState-Schema.
+    private suspend fun syncFullState() {
+        val state = _uiState.value
+        repository.getState(state.gameId, state.playerId, state.token)
+            .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
+            .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+    }
+
     fun rollDice() {
         viewModelScope.launch {
             val state = _uiState.value
             _uiState.value = state.copy(isLoading = true, error = null)
             repository.rollDice(state.gameId, state.playerId, state.token)
-                .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it, selectedDice = emptySet()) }
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoading = false, selectedDice = emptySet())
+                    syncFullState()
+                }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
     }
@@ -95,8 +107,11 @@ class GameViewModel : ViewModel() {
             if (state.selectedDice.isEmpty()) return@launch
             _uiState.value = state.copy(isLoading = true, error = null)
             val diceValues = state.selectedDice.mapNotNull { idx -> state.gameState?.dice?.getOrNull(idx) }
-        repository.keepDice(state.gameId, state.playerId, diceValues, state.token)
-                .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, gameState = it, selectedDice = emptySet()) }
+            repository.keepDice(state.gameId, state.playerId, diceValues, state.token)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoading = false, selectedDice = emptySet())
+                    syncFullState()
+                }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
     }
@@ -106,17 +121,18 @@ class GameViewModel : ViewModel() {
             val state = _uiState.value
             _uiState.value = state.copy(isLoading = true, error = null)
             repository.bank(state.gameId, state.playerId, state.token)
-                .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false); onSuccess() }
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    syncFullState()
+                    onSuccess()
+                }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false, error = it.message) }
         }
     }
 
     fun refreshState() {
         viewModelScope.launch {
-            val state = _uiState.value
-            repository.getState(state.gameId, state.playerId, state.token)
-                .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
-                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+            syncFullState()
         }
     }
 
