@@ -1,5 +1,4 @@
 package zehntausend.app.ui.screens
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,7 +19,7 @@ fun LoginScreen(
     var playerName by remember { mutableStateOf("") }
     var gameCode by remember { mutableStateOf("") }
     var showJoin by remember { mutableStateOf(false) }
-    var aiCount by remember { mutableStateOf(1) }
+    var aiCount by remember { mutableStateOf(0) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -48,6 +47,23 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
+        } else {
+            Text("KI-Gegner: $aiCount", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf(0, 1, 2, 3).forEach { n ->
+                    FilterChip(
+                        selected = aiCount == n,
+                        onClick = { aiCount = n },
+                        label = { Text("$n") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         uiState.error?.let {
@@ -59,13 +75,11 @@ fun LoginScreen(
             CircularProgressIndicator()
         } else {
             if (!showJoin) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Checkbox(checked = aiCount > 0, onCheckedChange = { aiCount = if (it) 1 else 0 })
-                    Text("KI-Gegner hinzufügen")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { if (playerName.isNotBlank()) viewModel.createGame(playerName, aiCount, onGameCreated) },
+                    onClick = {
+                        if (playerName.isNotBlank())
+                            viewModel.createGame(playerName, aiCount, onSuccess = onGameCreated)
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Neues Spiel erstellen") }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -75,7 +89,10 @@ fun LoginScreen(
                 ) { Text("Spiel beitreten") }
             } else {
                 Button(
-                    onClick = { if (playerName.isNotBlank() && gameCode.isNotBlank()) viewModel.joinGame(gameCode, playerName, onGameJoined) },
+                    onClick = {
+                        if (playerName.isNotBlank() && gameCode.isNotBlank())
+                            viewModel.joinGame(gameCode, playerName, onGameJoined)
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Beitreten") }
                 Spacer(modifier = Modifier.height(8.dp))

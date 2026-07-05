@@ -8,7 +8,7 @@ import com.google.gson.GsonBuilder
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://kronisoft.net/projekte/10k/backend/"
+private const val BASE_URL = "https://kronisoft.net/projekte/10k/backend/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

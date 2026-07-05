@@ -20,7 +20,7 @@ fun GameScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val gameState = uiState.gameState
-    val isMyTurn = gameState?.current_player_id == uiState.playerId
+    val isMyTurn = gameState?.my_turn == true
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -60,7 +60,7 @@ fun GameScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Würfel
-        val dice = gameState?.dice ?: emptyList()
+        val dice = gameState?.rolled?.takeIf { it.isNotEmpty() } ?: gameState?.dice ?: emptyList()
         val kept = gameState?.kept ?: emptyList()
 
         Text("Würfel:", fontWeight = FontWeight.SemiBold)
@@ -146,6 +146,17 @@ fun GameScreen(
                 onClick = { viewModel.refreshState() },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Aktualisieren") }
+        }
+    }
+    LaunchedEffect(gameState?.current_player_id) {
+        while (true) {
+            kotlinx.coroutines.delay(2000)
+            viewModel.refreshState()
+            val state = viewModel.uiState.value.gameState
+            val currentPlayer = state?.players?.find { it.player_id == state.current_player_id }
+            if (currentPlayer?.is_ai == 1) {
+                viewModel.triggerAiTurn()
+            }
         }
     }
 }

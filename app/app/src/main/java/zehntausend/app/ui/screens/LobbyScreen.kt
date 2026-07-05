@@ -1,5 +1,4 @@
 package zehntausend.app.ui.screens
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,7 +24,6 @@ fun LobbyScreen(
     ) {
         Text("🎲 Lobby", fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
-
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Spielcode:", style = MaterialTheme.typography.labelMedium)
@@ -38,37 +36,47 @@ fun LobbyScreen(
                 Text("Teile diesen Code mit anderen Spielern", style = MaterialTheme.typography.bodySmall)
             }
         }
-
         Spacer(modifier = Modifier.height(24.dp))
         Text("Spieler:", fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
-
         val players = uiState.gameState?.players ?: emptyList()
         if (players.isEmpty()) {
             Text("Warte auf Spieler...", style = MaterialTheme.typography.bodyMedium)
         } else {
             LazyColumn {
                 items(players) { player ->
-                    ListItem(headlineContent = { Text(player.name) })
+                    val label = if (player.is_ai == 1) "🤖 ${player.name}" else "👤 ${player.name}"
+                    ListItem(headlineContent = { Text(label) })
                     HorizontalDivider()
                 }
             }
         }
-
         Spacer(modifier = Modifier.weight(1f))
-
         uiState.error?.let {
             Text(it, color = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.height(8.dp))
         }
-
         if (uiState.isLoading) {
             CircularProgressIndicator()
         } else {
             Button(
-                onClick = { viewModel.startGame(onGameStarted) },
+                onClick = {
+                    viewModel.startGame {
+                        val state = viewModel.uiState.value.gameState
+                        val firstIsAi = state?.players?.firstOrNull()?.is_ai == 1
+                        if (firstIsAi) viewModel.triggerAiTurn()
+                        onGameStarted()
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Spiel starten") }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            viewModel.refreshState()
+            kotlinx.coroutines.delay(2000)
         }
     }
 }
