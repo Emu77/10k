@@ -29,7 +29,7 @@ class GameRepository {
         api.keepDice(gameId, playerId, indicesStr, token).body() ?: throw Exception("Leere Antwort")
     }
 
-    suspend fun bank(gameId: Int, playerId: Int, token: String): Result<GameState> = runCatching {
+    suspend fun bank(gameId: Int, playerId: Int, token: String): Result<ApiResponse> = runCatching {
         api.bank(gameId, playerId, token).body() ?: throw Exception("Leere Antwort")
     }
 
