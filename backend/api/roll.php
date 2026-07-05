@@ -25,6 +25,11 @@ $st = $db->prepare(
 $st->execute([$gameId, $turnNo]);
 $lastRoll = $st->fetch();
 
+// Vorheriger Wurf noch offen? Erst behalten, bevor erneut gewürfelt wird
+if ($lastRoll && $lastRoll['action'] === 'roll') {
+    err('Du musst zuerst mindestens einen Wertungswürfel behalten, bevor du erneut würfelst');
+}
+
 // Welche Würfel sind noch aktiv?
 $keptDice   = $lastRoll ? json_decode($lastRoll['kept_json'], true) : [];
 $keptVals   = array_column($keptDice, 'v');

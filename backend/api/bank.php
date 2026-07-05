@@ -23,6 +23,7 @@ $st->execute([$gameId, $turnNo]);
 $lastRoll = $st->fetch();
 if (!$lastRoll) err('Nichts zum Banken');
 if ($lastRoll['action'] === 'bust') err('Zug endete als Bust – nichts zu banken');
+if ($lastRoll['action'] === 'roll') err('Du musst zuerst Würfel behalten, bevor du bankst');
 
 $turnScore  = (int)$lastRoll['turn_score'];
 $hasEntered = (int)$p['has_entered'];
