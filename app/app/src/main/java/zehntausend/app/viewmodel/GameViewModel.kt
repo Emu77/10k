@@ -55,7 +55,8 @@ class GameViewModel : ViewModel() {
                         gameId = response.game_id ?: 0,
                         playerId = response.player_id ?: 0,
                         playerName = playerName,
-                        gameCode = gameCode
+                        gameCode = gameCode,
+                        token = response.token ?: ""
                     )
                     onSuccess()
                 }
