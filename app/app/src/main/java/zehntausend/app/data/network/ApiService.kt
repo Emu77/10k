@@ -18,7 +18,7 @@ interface ApiService {
     @FormUrlEncoded
     @POST("api/index.php?action=join")
     suspend fun joinGame(
-        @Field("game_code") gameCode: String,
+        @Field("code") gameCode: String,
         @Field("name") playerName: String
     ): Response<ApiResponse>
 
