@@ -58,7 +58,7 @@ fun LobbyScreen(
         }
         if (uiState.isLoading) {
             CircularProgressIndicator()
-        } else {
+        } else if (uiState.gameState?.my_slot == 0) {
             Button(
                 onClick = {
                     viewModel.startGame {
@@ -70,6 +70,11 @@ fun LobbyScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Spiel starten") }
+        } else {
+            Text(
+                "Warte, bis der Host das Spiel startet...",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 
@@ -77,6 +82,13 @@ fun LobbyScreen(
         while (true) {
             viewModel.refreshState()
             kotlinx.coroutines.delay(2000)
+        }
+    }
+
+    // Nicht-Host-Spieler werden automatisch weitergeleitet, sobald der Host startet
+    LaunchedEffect(uiState.gameState?.status) {
+        if (uiState.gameState?.status == "running") {
+            onGameStarted()
         }
     }
 }
