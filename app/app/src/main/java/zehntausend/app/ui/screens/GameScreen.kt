@@ -36,9 +36,9 @@ fun GameScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            if (player.player_id == gameState.current_player_id) "▶ ${player.name}" else player.name
-                        )
+                        val name = if (player.player_id == gameState.current_player_id) "▶ ${player.name}" else player.name
+                        val striche = if (player.bust_streak > 0) "  ⚠️ ${player.bust_streak}/3 Striche" else ""
+                        Text(name + striche)
                         Text("${player.total_score} Pkt")
                     }
                 }
@@ -48,10 +48,12 @@ fun GameScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Status
+        val isBust = gameState?.bust == true
         Text(
-            gameState?.message ?: "Warte...",
+            gameState?.message?.takeIf { it.isNotBlank() }?.let { if (isBust) "💥 $it" else it } ?: "Warte...",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary
+            fontWeight = if (isBust) FontWeight.Bold else FontWeight.Normal,
+            color = if (isBust) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
