@@ -33,6 +33,17 @@ $log = $st->fetchAll();
 
 $myTurn = ((int)$p['slot'] === $curSlot) && $p['game_status'] === 'running';
 
+// Nullwurf-/Bank-Meldung für die Anzeige
+$bust = $lastRoll && $lastRoll['action'] === 'bust';
+$lastActorName = $log[0]['pname'] ?? null;
+if ($bust) {
+    $message = ($lastActorName ?? 'Ein Spieler') . ' hat einen Nullwurf gewürfelt – Punkte des Zuges verloren.';
+} elseif ($lastRoll && $lastRoll['action'] === 'bank') {
+    $message = ($lastActorName ?? 'Ein Spieler') . ' hat gebankt.';
+} else {
+    $message = '';
+}
+
 // Gewinner ermitteln
 $winner = null;
 if ($p['game_status'] === 'finished') {
@@ -65,4 +76,6 @@ ok([
     'kept'         => $keptArr,
     'log'          => array_reverse($log),
     'winner'       => $winner,
+    'bust'         => $bust,
+    'message'      => $message,
 ]);
