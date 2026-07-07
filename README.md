@@ -1,4 +1,4 @@
-# <img src="app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="40" align="center"/> 10K – Zehntausend
+# 10K – Zehntausend <img src="app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="36" align="right"/>
 
 > Multiplayer-Würfelspiel für Android mit PHP/MySQL-Backend
 
