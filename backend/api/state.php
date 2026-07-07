@@ -44,6 +44,8 @@ if ($bust) {
     $message = ($lastActorName ?? 'Ein Spieler') . ' hat einen Nullwurf gewürfelt – Punkte des Zuges verloren.';
 } elseif (isset($log[0]) && $log[0]['action'] === 'bank' && !$lastIsAi) {
     $message = ($lastActorName ?? 'Ein Spieler') . ' hat gebankt.';
+} elseif (isset($log[0]) && $log[0]['action'] === 'roll_hot' && !$lastIsAi) {
+    $message = '🔥 Hot Dice! Alle Würfel sind wieder frei.';
 } else {
     $message = '';
 }
@@ -66,6 +68,22 @@ if ($lastRoll) {
         else $keptArr[] = $d['v'];
     }
 }
+
+// Historie aller behaltenen Würfel über den ganzen Zug hinweg (übersteht Hot-Dice-Neustarts,
+// bei denen kept_json für den frischen 5er-Wurf wieder geleert wird)
+$keptHistory = [];
+$st = $db->prepare(
+    'SELECT kept_json FROM `10k_turns`
+     WHERE game_id = ? AND turn_no = ? ORDER BY roll_no ASC'
+);
+$st->execute([$gameId, $turnNo]);
+foreach ($st->fetchAll() as $row) {
+    $kd = json_decode($row['kept_json'], true) ?: [];
+    if (count($kd) === 5) {
+        foreach ($kd as $d) { $keptHistory[] = $d['v']; }
+    }
+}
+
 ok([
     'status'       => $p['game_status'],
     'code'         => $p['code'],
@@ -75,9 +93,11 @@ ok([
     'my_slot'      => (int)$p['slot'],
     'my_turn'      => $myTurn,
     'turn_no'      => $turnNo,
+    'turn_score'   => $lastRoll ? (int)$lastRoll['turn_score'] : 0,
     'last_roll'    => $lastRoll ?: null,
     'dice'         => $dice,
     'kept'         => $keptArr,
+    'kept_history' => $keptHistory,
     'log'          => array_reverse($log),
     'winner'       => $winner,
     'bust'         => $bust,

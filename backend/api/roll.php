@@ -26,7 +26,7 @@ $st->execute([$gameId, $turnNo]);
 $lastRoll = $st->fetch();
 
 // Vorheriger Wurf noch offen? Erst behalten, bevor erneut gewürfelt wird
-if ($lastRoll && $lastRoll['action'] === 'roll') {
+if ($lastRoll && in_array($lastRoll['action'], ['roll', 'roll_hot'], true)) {
     err('Du musst zuerst mindestens einen Wertungswürfel behalten, bevor du erneut würfelst');
 }
 
@@ -35,10 +35,12 @@ $keptDice   = $lastRoll ? json_decode($lastRoll['kept_json'], true) : [];
 $keptVals   = array_column($keptDice, 'v');
 $activeCount = 5 - count($keptVals);
 // Wenn alle 5 behalten → "Hot Dice" → alle 5 wieder würfeln
+$isHotDice = false;
 if ($activeCount === 0) {
     $activeCount = 5;
     $keptDice    = [];
     $keptVals    = [];
+    $isHotDice   = true;
 }
 
 $rollNo     = $lastRoll ? ((int)$lastRoll['roll_no'] + 1) : 1;
@@ -59,7 +61,7 @@ foreach ($rolled as $rv) {
     $allDice[] = ['v' => $rv, 'kept' => false];
 }
 
-$action = $hasSc ? 'roll' : 'bust';
+$action = $hasSc ? ($isHotDice ? 'roll_hot' : 'roll') : 'bust';
 
 if (!$hasSc) {
     // Bust → nächster Spieler
