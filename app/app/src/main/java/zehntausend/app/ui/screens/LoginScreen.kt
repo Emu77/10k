@@ -80,6 +80,7 @@ fun LoginScreen(
                         if (playerName.isNotBlank())
                             viewModel.createGame(playerName, aiCount, onSuccess = onGameCreated)
                     },
+                    enabled = playerName.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Neues Spiel erstellen") }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -93,6 +94,7 @@ fun LoginScreen(
                         if (playerName.isNotBlank() && gameCode.isNotBlank())
                             viewModel.joinGame(gameCode, playerName, onGameJoined)
                     },
+                    enabled = playerName.isNotBlank() && gameCode.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Beitreten") }
                 Spacer(modifier = Modifier.height(8.dp))
