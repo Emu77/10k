@@ -32,8 +32,8 @@ class GameRepository {
         throw Exception(extractErrorMessage(this))
     }
 
-    suspend fun createGame(playerName: String, aiCount: Int = 0): Result<ApiResponse> = runCatching {
-        api.createGame(playerName, aiCount).bodyOrThrow()
+    suspend fun createGame(playerName: String, aiCount: Int = 0, winScore: Int = 10000): Result<ApiResponse> = runCatching {
+        api.createGame(playerName, aiCount, winScore).bodyOrThrow()
     }
     suspend fun joinGame(gameCode: String, playerName: String): Result<ApiResponse> = runCatching {
         api.joinGame(gameCode, playerName).bodyOrThrow()

@@ -30,10 +30,10 @@ class GameViewModel : ViewModel() {
         _uiState.value = UiState()
     }
 
-    fun createGame(playerName: String, aiCount: Int = 0, onSuccess: () -> Unit) {
+    fun createGame(playerName: String, aiCount: Int = 0, winScore: Int = 10000, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            repository.createGame(playerName, aiCount)
+            repository.createGame(playerName, aiCount, winScore)
                 .onSuccess { response ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,

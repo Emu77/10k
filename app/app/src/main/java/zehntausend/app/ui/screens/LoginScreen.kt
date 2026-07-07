@@ -20,6 +20,7 @@ fun LoginScreen(
     var gameCode by remember { mutableStateOf("") }
     var showJoin by remember { mutableStateOf(false) }
     var aiCount by remember { mutableStateOf(0) }
+    var winScore by remember { mutableStateOf(10000) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -64,6 +65,22 @@ fun LoginScreen(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+            Text("Zielpunktzahl: $winScore", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf(5000, 10000, 15000).forEach { n ->
+                    FilterChip(
+                        selected = winScore == n,
+                        onClick = { winScore = n },
+                        label = { Text("$n") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         uiState.error?.let {
@@ -78,7 +95,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         if (playerName.isNotBlank())
-                            viewModel.createGame(playerName, aiCount, onSuccess = onGameCreated)
+                            viewModel.createGame(playerName, aiCount, winScore, onSuccess = onGameCreated)
                     },
                     enabled = playerName.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()

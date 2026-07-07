@@ -12,7 +12,8 @@ interface ApiService {
     @POST("api/index.php?action=create")
     suspend fun createGame(
         @Field("name") playerName: String,
-        @Field("ai_count") aiCount: Int = 0
+        @Field("ai_count") aiCount: Int = 0,
+        @Field("win_score") winScore: Int = 10000
     ): Response<ApiResponse>
 
     @FormUrlEncoded
