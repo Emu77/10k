@@ -59,6 +59,7 @@ fun LobbyScreen(
         if (uiState.isLoading) {
             CircularProgressIndicator()
         } else if (uiState.gameState?.my_slot == 0) {
+            val canStart = players.size >= 2
             Button(
                 onClick = {
                     viewModel.startGame {
@@ -68,8 +69,17 @@ fun LobbyScreen(
                         onGameStarted()
                     }
                 },
+                enabled = canStart,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Spiel starten") }
+            if (!canStart) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Warte auf mindestens einen weiteren Spieler, der über den Spielcode beitritt.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         } else {
             Text(
                 "Warte, bis der Host das Spiel startet...",
