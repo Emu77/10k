@@ -33,12 +33,14 @@ $log = $st->fetchAll();
 
 $myTurn = ((int)$p['slot'] === $curSlot) && $p['game_status'] === 'running';
 
-// Nullwurf-/Bank-Meldung für die Anzeige
-$bust = $lastRoll && $lastRoll['action'] === 'bust';
+// Nullwurf-/Bank-Meldung für die Anzeige (letzter Eintrag im gesamten Spiel,
+// nicht auf die aktuelle Runde beschränkt, da current_turn nach Bust/Bank
+// bereits weitergezählt wurde und für die neue Runde noch nichts existiert)
+$bust = isset($log[0]) && $log[0]['action'] === 'bust';
 $lastActorName = $log[0]['pname'] ?? null;
 if ($bust) {
     $message = ($lastActorName ?? 'Ein Spieler') . ' hat einen Nullwurf gewürfelt – Punkte des Zuges verloren.';
-} elseif ($lastRoll && $lastRoll['action'] === 'bank') {
+} elseif (isset($log[0]) && $log[0]['action'] === 'bank') {
     $message = ($lastActorName ?? 'Ein Spieler') . ' hat gebankt.';
 } else {
     $message = '';
