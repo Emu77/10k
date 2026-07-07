@@ -27,15 +27,14 @@ Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, �
 | Netzwerk | Retrofit 2 + OkHttp |
 | JSON | Gson |
 | Async | Kotlin Coroutines |
-| Navigation | Navigation Component |
-| Session | SharedPreferences |
+| Package | `zehntausend.app` |
 
 ### Backend
 | Komponente | Technologie |
 |---|---|
 | Sprache | PHP 7.4 |
 | Datenbank | MySQL / MariaDB |
-| Schnittstelle | REST-API (JSON) |
+| Schnittstelle | REST-API (JSON), eine PHP-Datei pro Endpunkt |
 | Server | Apache (Shared Hosting) |
 | Hosting | kronisoft.net |
 
@@ -44,57 +43,66 @@ Mehrere Spieler treten über ihre Android-Geräte gegeneinander an – online, �
 ## Projektstruktur
 
 ```
-10k/                        ← PHP-Backend
-├── config.php              ← DB-Verbindung, Umgebungserkennung
-├── scoring.php             ← Spiellogik / Punkteberechnung
-├── setup.sql               ← Datenbankstruktur
-├── index.php               ← Lobby (Web-Fallback)
-├── game.php                ← Spielfeld (Web-Fallback)
-└── api/
-    ├── create.php          ← Raum erstellen
-    ├── join.php            ← Beitreten
-    ├── start.php           ← Spiel starten
-    ├── roll.php            ← Würfeln
-    ├── keep.php            ← Würfel behalten
-    ├── bank.php            ← Punkte banken
-    ├── state.php           ← Spielzustand (Polling)
-    └── ai_turn.php         ← KI-Zug
-
-10k-android/                ← Android-App
-└── app/src/main/java/net/kronisoft/zehntausend/
-    ├── MainActivity.kt
-    ├── api/
-    │   ├── ApiService.kt   ← Retrofit-Interface (8 Endpunkte)
-    │   └── RetrofitClient.kt
-    ├── model/Models.kt     ← Datenklassen
-    ├── util/SessionStore.kt
-    └── ui/
-        ├── Theme.kt
-        ├── components/DieView.kt
-        ├── lobby/
-        │   ├── LobbyScreen.kt
-        │   └── LobbyViewModel.kt
-        └── game/
-            ├── GameScreen.kt
-            └── GameViewModel.kt
+10k/
+|-- backend/                    PHP-Backend
+|   |-- config.php              DB-Verbindung (nicht in Git)
+|   |-- config.example.php      Vorlage fuer config.php
+|   |-- scoring.php             Spiellogik / Punkteberechnung
+|   |-- setup.sql               Datenbankstruktur
+|   |-- .htaccess               muss leer bleiben (sonst 500 auf kronisoft.net)
+|   `-- api/
+|       |-- _helpers.php        gemeinsame Hilfsfunktionen
+|       |-- index.php
+|       |-- create.php          Raum erstellen
+|       |-- join.php            Beitreten
+|       |-- start.php           Spiel starten
+|       |-- roll.php            Wuerfeln
+|       |-- keep.php            Wuerfel behalten
+|       |-- bank.php            Punkte banken
+|       |-- state.php           Spielzustand (Polling)
+|       `-- ai_turn.php         KI-Zug
+|
+|-- app/                        Android-App (Gradle-Projekt)
+|   `-- app/src/main/java/zehntausend/app/
+|       |-- MainActivity.kt
+|       |-- data/
+|       |   |-- model/Models.kt         Datenklassen
+|       |   |-- network/
+|       |   |   |-- ApiService.kt       Retrofit-Interface
+|       |   |   `-- RetrofitClient.kt
+|       |   `-- repository/GameRepository.kt
+|       |-- viewmodel/GameViewModel.kt
+|       `-- ui/
+|           |-- theme/          Color.kt, Theme.kt, Type.kt
+|           `-- screens/
+|               |-- LoginScreen.kt
+|               |-- LobbyScreen.kt
+|               |-- GameScreen.kt
+|               `-- ResultScreen.kt
+|
+|-- docs/                       Anforderungen, ERM, API-Spezifikation, Spielregeln, Umsetzungsplan
+|-- releases/                   gebaute APKs (datierte Commits)
+`-- config.php                  Root-Symlink/Kopie fuer lokale XAMPP-Umgebungserkennung
 ```
 
 ---
 
 ## API-Endpunkte
 
-Alle Calls via `POST https://kronisoft.net/projekte/10k/backend/api/index.php?action=<action>`
+Basis-URL: `https://kronisoft.net/projekte/10k/backend/api/`
 
-| Action | Parameter | Beschreibung |
+Jeder Endpunkt ist eine eigene PHP-Datei, aufgerufen per `POST <Basis-URL><endpunkt>.php`:
+
+| Datei | Parameter | Beschreibung |
 |---|---|---|
-| `create` | `name`, `ai_count` | Neues Spiel erstellen |
-| `join` | `game_code`, `name` | Spiel beitreten |
-| `start` | `game_id`, `player_id`, `token` | Spiel starten |
-| `roll` | `game_id`, `player_id`, `token` | Würfeln |
-| `keep` | `game_id`, `player_id`, `indices`, `token` | Würfel behalten |
-| `bank` | `game_id`, `player_id`, `token` | Punkte banken |
-| `state` | `game_id`, `player_id`, `token` | Spielzustand abfragen |
-| `ai_turn` | `game_id` | KI-Zug ausführen |
+| `create.php` | `name`, `ai_count` | Neues Spiel erstellen |
+| `join.php` | `code`, `name` | Spiel beitreten |
+| `start.php` | `game_id`, `player_id`, `token` | Spiel starten |
+| `roll.php` | `game_id`, `player_id`, `token` | Würfeln |
+| `keep.php` | `game_id`, `player_id`, `indices`, `token` | Würfel behalten |
+| `bank.php` | `game_id`, `player_id`, `token` | Punkte banken |
+| `state.php` | `game_id`, `player_id`, `token` | Spielzustand abfragen |
+| `ai_turn.php` | `game_id` | KI-Zug ausführen |
 
 ---
 ## Spielregeln
@@ -123,24 +131,25 @@ Alle Calls via `POST https://kronisoft.net/projekte/10k/backend/api/index.php?ac
 
 **1. Datenbank anlegen**
 ```sql
--- setup.sql in phpMyAdmin ausführen
+-- backend/setup.sql in phpMyAdmin ausführen
 ```
 
-**2. `config.php` anpassen**
+**2. `backend/config.php` anlegen**
 ```php
+// Kopie von backend/config.example.php mit echten Zugangsdaten
 define('DB_NAME', 'DEIN_DB_NAME');
 define('DB_USER', 'DEIN_DB_USER');
 define('DB_PASS', 'DEIN_DB_PASS');
 ```
-> `config.php` ist in `.gitignore` – nie ins Repo committen!
+> `config.php` ist in `.gitignore` – nie ins Repo committen! `config.example.php` dient als Vorlage.
 
 **3. Dateien hochladen**
 ```
-Ziel: kronisoft.net/projekte/10k/backend/backend/
+Ziel: kronisoft.net/projekte/10k/backend/
 Tool: FileZilla
 ```
 
-> ⚠️ `.htaccess` muss leer sein – `php_flag`/`Options`-Direktiven verursachen 500-Fehler auf kronisoft.net.
+> ⚠️ `backend/.htaccess` muss leer bleiben – `php_flag`/`Options`-Direktiven verursachen 500-Fehler auf kronisoft.net.
 
 ---
 
@@ -148,22 +157,26 @@ Tool: FileZilla
 
 **1. Projekt öffnen**
 ```
-Android Studio → Open → 10k-android/
+Android Studio -> Open -> app/
 ```
 
 **2. Gradle sync abwarten**
 
 **3. Backend-URL prüfen** (`RetrofitClient.kt`)
 ```kotlin
-const val BASE_URL_PROD  = "https://kronisoft.net/projekte/10k/"
-const val BASE_URL_LOCAL = "http://10.0.2.2/projekte/10k/"  // Emulator
+private const val BASE_URL = "https://kronisoft.net/projekte/10k/backend/"
 ```
 
 **4. App auf Gerät deployen**
 ```bash
-# Wireless ADB (SHIFT6mq)
+# Wireless ADB (SHIFTphone 8 / SHIFT6mq)
 adb connect <IP>:<PORT>
 # dann Run in Android Studio
+```
+
+**APK-Build (Kommandozeile)**
+```bash
+./gradlew assembleDebug --no-configuration-cache
 ```
 
 ---
@@ -175,19 +188,19 @@ Der Multiplayer funktioniert über **Polling** (kein WebSocket):
 ```
 Spieler A                    kronisoft.net/api          Spieler B
    |                               |                       |
-   |── POST create.php ──────────>|                       |
-   |<─ {code: "AB12CD"} ─────────|                       |
+   |-- POST create.php ---------->|                       |
+   |<- {code: "AB12CD"} ---------|                       |
    |                               |                       |
-   |                               |<── POST join.php ────|
-   |                               |─── {token: ...} ────>|
+   |                               |<-- POST join.php -----|
+   |                               |--- {token: ...} ----->|
    |                               |                       |
-   |── POST start.php ──────────>|                       |
+   |-- POST start.php ----------->|                       |
    |                               |                       |
-   |── GET  state.php (2s) ──────>|<── GET state.php ────|
-   |── POST roll.php ────────────>|                       |
-   |── POST keep.php ────────────>|                       |
-   |── POST bank.php ────────────>|                       |
-   |── GET  state.php (2s) ──────>|<── GET state.php ────|
+   |-- GET  state.php (2s) ------>|<-- GET state.php -----|
+   |-- POST roll.php ------------>|                       |
+   |-- POST keep.php ------------>|                       |
+   |-- POST bank.php ------------>|                       |
+   |-- GET  state.php (2s) ------>|<-- GET state.php -----|
 ```
 
 ---
