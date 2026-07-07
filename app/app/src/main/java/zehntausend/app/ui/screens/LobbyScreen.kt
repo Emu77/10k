@@ -14,7 +14,8 @@ import zehntausend.app.viewmodel.GameViewModel
 @Composable
 fun LobbyScreen(
     viewModel: GameViewModel,
-    onGameStarted: () -> Unit
+    onGameStarted: () -> Unit,
+    onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -86,6 +87,12 @@ fun LobbyScreen(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("Zurück") }
     }
 
     LaunchedEffect(Unit) {

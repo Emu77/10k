@@ -40,7 +40,11 @@ class MainActivity : ComponentActivity() {
                         )
                         Screen.LOBBY -> LobbyScreen(
                             viewModel = viewModel,
-                            onGameStarted = { screen = Screen.GAME }
+                            onGameStarted = { screen = Screen.GAME },
+                            onBack = {
+                                viewModel.resetState()
+                                screen = Screen.LOGIN
+                            }
                         )
                         Screen.GAME -> GameScreen(
                             viewModel = viewModel,

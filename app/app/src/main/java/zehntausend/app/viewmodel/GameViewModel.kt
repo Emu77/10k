@@ -26,6 +26,10 @@ class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
+    fun resetState() {
+        _uiState.value = UiState()
+    }
+
     fun createGame(playerName: String, aiCount: Int = 0, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
