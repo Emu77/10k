@@ -24,7 +24,7 @@ $lastRoll = $st->fetch();
 
 // Letzten Log-Einträge für Anzeige
 $st = $db->prepare(
-    'SELECT t.*, pl.name AS pname FROM `10k_turns` t
+    'SELECT t.*, pl.name AS pname, pl.is_ai AS pis_ai FROM `10k_turns` t
      JOIN `10k_players` pl ON pl.id = t.player_id
      WHERE t.game_id = ? ORDER BY t.id DESC LIMIT 10'
 );
@@ -36,11 +36,13 @@ $myTurn = ((int)$p['slot'] === $curSlot) && $p['game_status'] === 'running';
 // Nullwurf-/Bank-Meldung für die Anzeige (letzter Eintrag im gesamten Spiel,
 // nicht auf die aktuelle Runde beschränkt, da current_turn nach Bust/Bank
 // bereits weitergezählt wurde und für die neue Runde noch nichts existiert)
-$bust = isset($log[0]) && $log[0]['action'] === 'bust';
+// KI-Aktionen werden bewusst nicht als Meldung angezeigt (nur menschliche Spieler)
+$lastIsAi = isset($log[0]) && (int)($log[0]['pis_ai'] ?? 0) === 1;
+$bust = isset($log[0]) && $log[0]['action'] === 'bust' && !$lastIsAi;
 $lastActorName = $log[0]['pname'] ?? null;
 if ($bust) {
     $message = ($lastActorName ?? 'Ein Spieler') . ' hat einen Nullwurf gewürfelt – Punkte des Zuges verloren.';
-} elseif (isset($log[0]) && $log[0]['action'] === 'bank') {
+} elseif (isset($log[0]) && $log[0]['action'] === 'bank' && !$lastIsAi) {
     $message = ($lastActorName ?? 'Ein Spieler') . ' hat gebankt.';
 } else {
     $message = '';

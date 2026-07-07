@@ -146,7 +146,7 @@ class GameViewModel : ViewModel() {
             val state = _uiState.value
             repository.aiTurn(state.gameId)
                 .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
-                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+                .onFailure { /* Automatischer Hintergrund-Check, Fehler hier bewusst ignorieren */ }
         }
     }
 }
