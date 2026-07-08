@@ -68,36 +68,35 @@ fun GameScreen(
         Text("Würfel:", fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            dice.forEachIndexed { index, value ->
-                val isSelected = uiState.selectedDice.contains(index)
-                OutlinedCard(
-                    onClick = { if (isMyTurn) viewModel.toggleDie(index) },
-                    modifier = Modifier.weight(1f),
-                    border = BorderStroke(
-                        2.dp,
-                        if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.outline
-                    ),
-                    colors = CardDefaults.outlinedCardColors(
-                        containerColor = if (isSelected)
-                            MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            diceFace(value),
-                            fontSize = 28.sp
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val spacing = 8.dp
+            val dieSize = (maxWidth - spacing * 4) / 5
+            Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                dice.forEachIndexed { index, value ->
+                    val isSelected = uiState.selectedDice.contains(index)
+                    OutlinedCard(
+                        onClick = { if (isMyTurn) viewModel.toggleDie(index) },
+                        modifier = Modifier.size(dieSize),
+                        border = BorderStroke(
+                            2.dp,
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.outline
+                        ),
+                        colors = CardDefaults.outlinedCardColors(
+                            containerColor = if (isSelected)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else MaterialTheme.colorScheme.surface
                         )
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                diceFace(value),
+                                fontSize = 28.sp
+                            )
+                        }
                     }
                 }
             }
