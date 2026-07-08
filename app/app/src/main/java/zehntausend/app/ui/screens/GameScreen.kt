@@ -68,11 +68,15 @@ fun GameScreen(
         Text("Würfel:", fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
 
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            itemsIndexed(dice) { index, value ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            dice.forEachIndexed { index, value ->
                 val isSelected = uiState.selectedDice.contains(index)
                 OutlinedCard(
                     onClick = { if (isMyTurn) viewModel.toggleDie(index) },
+                    modifier = Modifier.weight(1f),
                     border = BorderStroke(
                         2.dp,
                         if (isSelected) MaterialTheme.colorScheme.primary
@@ -85,12 +89,14 @@ fun GameScreen(
                     )
                 ) {
                     Box(
-                        modifier = Modifier.size(64.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             diceFace(value),
-                            fontSize = 32.sp
+                            fontSize = 28.sp
                         )
                     }
                 }
