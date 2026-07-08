@@ -18,7 +18,11 @@ fun ResultScreen(
     onPlayAgain: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val players = uiState.gameState?.players?.sortedByDescending { it.total_score } ?: emptyList()
+    val players = uiState.gameState?.players
+        ?.sortedWith(
+            compareBy<zehntausend.app.data.model.Player, Int?>(nullsLast()) { it.finish_rank }
+                .thenByDescending { it.total_score }
+        ) ?: emptyList()
     val winner = players.firstOrNull()
 
     Column(

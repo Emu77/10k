@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,7 +20,9 @@ fun LoginScreen(
     onGameJoined: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var playerName by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("zehntausend_prefs", android.content.Context.MODE_PRIVATE) }
+    var playerName by remember { mutableStateOf(prefs.getString("player_name", "") ?: "") }
     var gameCode by remember { mutableStateOf("") }
     var showJoin by remember { mutableStateOf(false) }
     var aiCount by remember { mutableStateOf(0) }
@@ -105,8 +108,10 @@ fun LoginScreen(
             if (!showJoin) {
                 Button(
                     onClick = {
-                        if (playerName.isNotBlank())
+                        if (playerName.isNotBlank()) {
+                            prefs.edit().putString("player_name", playerName).apply()
                             viewModel.createGame(playerName, aiCount, winScore, onSuccess = onGameCreated)
+                        }
                     },
                     enabled = playerName.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
@@ -119,8 +124,10 @@ fun LoginScreen(
             } else {
                 Button(
                     onClick = {
-                        if (playerName.isNotBlank() && gameCode.isNotBlank())
+                        if (playerName.isNotBlank() && gameCode.isNotBlank()) {
+                            prefs.edit().putString("player_name", playerName).apply()
                             viewModel.joinGame(gameCode, playerName, onGameJoined)
+                        }
                     },
                     enabled = playerName.isNotBlank() && gameCode.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
