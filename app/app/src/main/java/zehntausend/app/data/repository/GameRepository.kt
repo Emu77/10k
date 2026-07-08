@@ -57,4 +57,7 @@ class GameRepository {
     suspend fun aiTurn(gameId: Int): Result<GameState> = runCatching {
         api.aiTurn(gameId).bodyOrThrow()
     }
+    suspend fun finishChoice(token: String, choice: String): Result<ApiResponse> = runCatching {
+        api.finishChoice(token, choice).bodyOrThrow()
+    }
 }

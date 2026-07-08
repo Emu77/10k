@@ -69,4 +69,11 @@ interface ApiService {
     suspend fun aiTurn(
         @Field("game_id") gameId: Int
     ): Response<GameState>
+
+    @FormUrlEncoded
+    @POST("api/index.php?action=finish_choice")
+    suspend fun finishChoice(
+        @Field("token") token: String,
+        @Field("choice") choice: String
+    ): Response<ApiResponse>
 }

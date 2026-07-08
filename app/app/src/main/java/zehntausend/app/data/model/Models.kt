@@ -27,6 +27,7 @@ data class GameState(
     val options: List<DiceOption> = emptyList(),
     val bust: Boolean = false,
     @SerializedName("turn_score") val turn_score: Int = 0,
+    @SerializedName("must_choose_finish") val must_choose_finish: Boolean = false,
 )
 
 data class DiceOption(
@@ -41,5 +42,6 @@ data class Player(
     @SerializedName("total_score") val total_score: Int = 0,
     @SerializedName("is_ai") val is_ai: Int = 0,
     @SerializedName("has_entered") val has_entered: Int = 0,
-    @SerializedName("bust_streak") val bust_streak: Int = 0
+    @SerializedName("bust_streak") val bust_streak: Int = 0,
+    @SerializedName("finish_rank") val finish_rank: Int? = null
 )

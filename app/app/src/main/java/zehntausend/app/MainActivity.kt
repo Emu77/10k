@@ -57,7 +57,8 @@ class MainActivity : ComponentActivity() {
                         )
                         Screen.GAME -> GameScreen(
                             viewModel = viewModel,
-                            onGameOver = { screen = Screen.RESULT }
+                            onGameOver = { screen = Screen.RESULT },
+                            onExit = { screen = Screen.LOGIN }
                         )
                         Screen.RESULT -> ResultScreen(
                             viewModel = viewModel,

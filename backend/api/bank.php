@@ -10,8 +10,8 @@ if ($p['game_status'] !== 'running') err('Spiel läuft nicht');
 $db      = DB::get();
 $gameId  = (int)$p['game_id'];
 $players = gamePlayers($gameId);
-$curSlot = (int)$p['current_turn'] % count($players);
-if ((int)$p['slot'] !== $curSlot)   err('Nicht dein Zug');
+$curSlot = activeSlot($players, (int)$p['current_turn']);
+if ($curSlot === null || (int)$p['slot'] !== $curSlot) err('Nicht dein Zug');
 
 $turnNo = (int)$p['current_turn'];
 $st = $db->prepare(
@@ -48,10 +48,9 @@ $db->prepare(
 )->execute([$gameId, $turnNo, (int)$lastRoll['roll_no']]);
 
 if ($won) {
-    $db->prepare('UPDATE `10k_games` SET status = "finished" WHERE id = ?')
-       ->execute([$gameId]);
+    $db->prepare('UPDATE `10k_players` SET awaiting_choice = 1 WHERE id = ?')
+       ->execute([$p['id']]);
 } else {
-    // Nächster Spieler
     $db->prepare('UPDATE `10k_games` SET current_turn = current_turn + 1 WHERE id = ?')
        ->execute([$gameId]);
 }

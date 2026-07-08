@@ -61,11 +61,24 @@ function currentTurnState(int $gameId, int $playerSlot, int $turnNo): array {
 // ── Alle Spieler eines Spiels ─────────────────────────────────────────────
 function gamePlayers(int $gameId): array {
     $st = DB::get()->prepare(
-        'SELECT id, slot, name, is_ai, total_score, has_entered, bust_streak
+        'SELECT id, slot, name, is_ai, total_score, has_entered, bust_streak, finish_rank
          FROM `10k_players` WHERE game_id = ? ORDER BY slot'
     );
     $st->execute([$gameId]);
     return $st->fetchAll();
+}
+function activeSlot(array $players, int $currentTurn): ?int {
+    $n = count($players);
+    if ($n === 0) return null;
+    for ($i = 0; $i < $n; $i++) {
+        $slot = ($currentTurn + $i) % $n;
+        foreach ($players as $pl) {
+            if ((int)$pl['slot'] === $slot && $pl['finish_rank'] === null) {
+                return $slot;
+            }
+        }
+    }
+    return null;
 }
 
 // ── Raumcode generieren ───────────────────────────────────────────────────

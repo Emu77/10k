@@ -145,8 +145,16 @@ class GameViewModel : ViewModel() {
         viewModelScope.launch {
             val state = _uiState.value
             repository.aiTurn(state.gameId)
-                .onSuccess { _uiState.value = _uiState.value.copy(gameState = it) }
+                .onSuccess { syncFullState() } // ai_turn kann jetzt mehrere Zuege auf einmal spielen (Fast-Forward)
                 .onFailure { /* Automatischer Hintergrund-Check, Fehler hier bewusst ignorieren */ }
+        }
+    }
+    fun chooseFinish(choice: String) {
+        viewModelScope.launch {
+            val state = _uiState.value
+            repository.finishChoice(state.token, choice)
+                .onSuccess { syncFullState() }
+                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
         }
     }
 }

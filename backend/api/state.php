@@ -10,7 +10,7 @@ $db      = DB::get();
 $gameId  = (int)$p['game_id'];
 $players = gamePlayers($gameId);
 $nPlayers = count($players);
-$curSlot  = (int)$p['current_turn'] % max($nPlayers, 1);
+$curSlot  = activeSlot($players, (int)$p['current_turn']) ?? -1;
 
 // Letzter Zustand dieser Runde
 $turnNo = (int)$p['current_turn'];
@@ -50,11 +50,16 @@ if ($bust) {
     $message = '';
 }
 
-// Gewinner ermitteln
 $winner = null;
 if ($p['game_status'] === 'finished') {
-    usort($players, fn($a,$b) => $b['total_score'] - $a['total_score']);
-    $winner = $players[0]['name'];
+    $ranked = array_values(array_filter($players, fn($pl) => $pl['finish_rank'] !== null));
+    if (!empty($ranked)) {
+        usort($ranked, fn($a,$b) => $a['finish_rank'] - $b['finish_rank']);
+        $winner = $ranked[0]['name'];
+    } else {
+        usort($players, fn($a,$b) => $b['total_score'] - $a['total_score']);
+        $winner = $players[0]['name'];
+    }
 }
 
 
@@ -92,6 +97,7 @@ ok([
     'current_slot' => $curSlot,
     'my_slot'      => (int)$p['slot'],
     'my_turn'      => $myTurn,
+    'must_choose_finish' => ((int)($p['awaiting_choice'] ?? 0) === 1),
     'turn_no'      => $turnNo,
     'turn_score'   => $lastRoll ? (int)$lastRoll['turn_score'] : 0,
     'last_roll'    => $lastRoll ?: null,

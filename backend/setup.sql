@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS `10k_players` (
     `is_ai`        TINYINT(1) NOT NULL DEFAULT 0,
     `total_score`  INT UNSIGNED NOT NULL DEFAULT 0,
     `has_entered`  TINYINT(1) NOT NULL DEFAULT 0, -- mind. 1× ≥ 1000 gepunktet
+    `bust_streak`  TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    `finish_rank`  TINYINT UNSIGNED NULL DEFAULT NULL, -- Reihenfolge des Zielerreichens (1=Gold, 2=Silber, 3=Bronze)
+    `awaiting_choice` TINYINT(1) NOT NULL DEFAULT 0,   -- wartet auf Weiterspielen/Beenden-Entscheidung
     FOREIGN KEY (`game_id`) REFERENCES `10k_games`(`id`) ON DELETE CASCADE,
     UNIQUE KEY `game_slot` (`game_id`, `slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

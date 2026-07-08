@@ -12,8 +12,8 @@ $gameId  = (int)$p['game_id'];
 $players = gamePlayers($gameId);
 
 // Bin ich dran?
-$curSlot = (int)$p['current_turn'] % count($players);
-if ((int)$p['slot'] !== $curSlot) err('Nicht dein Zug');
+$curSlot = activeSlot($players, (int)$p['current_turn']);
+if ($curSlot === null || (int)$p['slot'] !== $curSlot) err('Nicht dein Zug');
 
 // Aktuellen Rundenstand ermitteln
 $turnNo = (int)$p['current_turn'];

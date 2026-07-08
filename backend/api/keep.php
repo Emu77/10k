@@ -14,8 +14,8 @@ if ($p['game_status'] !== 'running') err('Spiel läuft nicht');
 $db      = DB::get();
 $gameId  = (int)$p['game_id'];
 $players = gamePlayers($gameId);
-$curSlot = (int)$p['current_turn'] % count($players);
-if ((int)$p['slot'] !== $curSlot)   err('Nicht dein Zug');
+$curSlot = activeSlot($players, (int)$p['current_turn']);
+if ($curSlot === null || (int)$p['slot'] !== $curSlot) err('Nicht dein Zug');
 
 $turnNo = (int)$p['current_turn'];
 $st = $db->prepare(

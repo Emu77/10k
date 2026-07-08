@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -16,16 +17,46 @@ import zehntausend.app.viewmodel.GameViewModel
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
-    onGameOver: () -> Unit
+    onGameOver: () -> Unit,
+    onExit: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val gameState = uiState.gameState
     val isMyTurn = gameState?.my_turn == true
 
+    // Automatisch zum Ergebnis wechseln, sobald das Spiel beendet ist -
+    // auch wenn NICHT der eigene Bank-Klick den Sieg ausgeloest hat
+    // (z.B. KI gewinnt im Hintergrund waehrend man nur zuschaut).
+    LaunchedEffect(gameState?.status) {
+        if (gameState?.status == "finished") onGameOver()
+    }
+
+    if (gameState?.must_choose_finish == true) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text("Zielpunktzahl erreicht!") },
+            text = { Text("Du hast das Ziel erreicht. Sollen die anderen Spieler weiterspielen (du schaust dann nur noch zu), oder das Spiel jetzt beenden?") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.chooseFinish("end") }) { Text("Spiel beenden") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.chooseFinish("continue") }) { Text("Weiterspielen lassen") }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Notausgang: jederzeit zurueck zur Lobby, egal was der Server-Status sagt
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = {
+                viewModel.resetState()
+                onExit()
+            }) { Text("Spiel verlassen") }
+        }
+
         // Punktestand
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(12.dp)) {
@@ -38,8 +69,14 @@ fun GameScreen(
                     ) {
                         val name = if (player.player_id == gameState.current_player_id) "▶ ${player.name}" else player.name
                         val striche = if (player.bust_streak > 0) "  ⚠️ ${player.bust_streak}/3 Striche" else ""
-                        Text(name + striche)
-                        Text("${player.total_score} Pkt")
+                        val medalColor = when (player.finish_rank) {
+                            1 -> Color(0xFFFFD700)
+                            2 -> Color(0xFFC0C0C0)
+                            3 -> Color(0xFFCD7F32)
+                            else -> Color.Unspecified
+                        }
+                        Text(name + striche, color = medalColor)
+                        Text("${player.total_score} Pkt", color = medalColor)
                     }
                 }
             }
