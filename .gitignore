@@ -4,3 +4,4 @@ app/local.properties
 backend/config.php
 /config.php
 app/.idea/
+releases/
