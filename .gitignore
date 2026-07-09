@@ -5,3 +5,5 @@ backend/config.php
 /config.php
 app/.idea/
 releases/
+docs/10k-Spielregeln.odt
+.~lock.*#
