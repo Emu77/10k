@@ -108,7 +108,10 @@ fun GameScreen(
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val spacing = 8.dp
             val dieSize = (maxWidth - spacing * 4) / 5
-            Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally)
+            ) {
                 dice.forEachIndexed { index, value ->
                     val isSelected = uiState.selectedDice.contains(index)
                     OutlinedCard(
